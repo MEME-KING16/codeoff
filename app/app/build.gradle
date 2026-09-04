@@ -24,6 +24,16 @@ dependencies {
 
     // This dependency is used by the application.
     implementation libs.guava
+    implementation 'org.java-websocket:Java-WebSocket:1.5.6'
+    // makes swing look better
+    implementation 'com.formdev:flatlaf:3.5.4'
+    // ide
+    implementation 'com.fifesoft:rsyntaxtextarea:3.4.0'
+    implementation 'com.fifesoft:autocomplete:3.3.1'
+    implementation 'com.fifesoft:languagesupport:3.4.1'
+
+    //gson
+    implementation 'com.google.code.gson:gson:2.11.0'
 }
 
 // Apply a specific Java toolchain to ease working on different environments.
