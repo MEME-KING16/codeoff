@@ -142,7 +142,8 @@ public class Main {
 
         JLabel header = new JLabel("Settings", SwingConstants.CENTER);
         header.setFont(header.getFont().deriveFont(Font.BOLD, 18f));
-
+        
+        
         panel.add(header, BorderLayout.NORTH);
 
         return panel;
@@ -178,4 +179,27 @@ public class Main {
     public static void setPrompt(String prompt) {
         SwingUtilities.invokeLater(() -> subHeader.setText(prompt));
     }
+
+    // public static void applySettings(boolean darkMode) {
+    //     if (darkMode) {
+    //         FlatDarkLaf.setup();
+    //         // try {
+    //         //     Theme theme = Theme.load(Main.class.getResourceAsStream(
+    //         //         "/org/fife/ui/rsyntaxtextarea/themes/dark.xml"));
+    //         //     theme.apply(textArea);
+    //         // } catch (Exception e) {
+    //         //     e.printStackTrace();
+    //         // }
+    //     } else {
+    //         FlatLightLaf.setup();
+    //         // try {
+    //         //    Theme theme = Theme.load(Main.class.getResourceAsStream(
+    //         //         "/org/fife/ui/rsyntaxtextarea/themes/light.xml"));
+    //         //     theme.apply(textArea);
+    //         // } catch (Exception e) {
+    //         //     e.printStackTrace();
+    //         // }
+    //     }
+    //     SwingUtilities.updateComponentTreeUI(cardPanel);
+    // }
 }

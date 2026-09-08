@@ -95,14 +95,14 @@ async function generateChallenge(): Promise<Challenge> {
       messages: [
         {
           role: "system",
-          content: "You generate short Java coding challenges for a competitive coding game. Respond ONLY with valid JSON, no markdown, no explanation. Format: { \"prompt\": string }. 1 phrase for the prompt. in the prompt, include the function signature."
+          content: "You generate short Java coding challenges for a competitive coding game. Respond ONLY with valid JSON, no markdown, no explanation. Format: { \"prompt\": \"prompt including function signature\" }. 1 phrase for the prompt. in the prompt, include the function signature."
         },
         {
           role: "user",
           content: "Generate a simple coding challenge suitable for a casual match, solvable in under 5 minutes."
         }
       ],
-      temperature: 0.8
+      temperature: 1.5
     })
   });
 
@@ -128,14 +128,14 @@ async function generateChallenge(): Promise<Challenge> {
       messages: [
         {
           role: "system",
-          content: "You solve simple coding challenges just give the code NO explanation, no markdown, no comments. Respond ONLY with valid JSON, no markdown, no explanation. Format: { \"solution\": string }."
+          content: "You solve simple coding challenges just give the code NO explanation, no markdown, no comments. Respond ONLY with valid JSON, no markdown, no explanation. Format: { \"solution\": \"code\" }."
         },
         {
           role: "user",
           content: "Prompt: " + promptParsed.prompt
         }
       ],
-      temperature: 0.8
+      temperature: 0.5
     })
   });
 
