@@ -64,6 +64,8 @@ public class Main {
         JButton settingsBtn = new JButton("Settings");
         JButton quitBtn = new JButton("Quit");
 
+        rankedBtn.setEnabled(false);
+
         for (JButton btn : new JButton[]{casualBtn, rankedBtn, settingsBtn, quitBtn}) {
             btn.setAlignmentX(Component.CENTER_ALIGNMENT);
             btn.setMaximumSize(new Dimension(200, 40));

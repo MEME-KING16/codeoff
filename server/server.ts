@@ -41,14 +41,18 @@ const app = new Elysia()
         ws.send(JSON.stringify({ type: 'matchmake_ack', mode }));
         matchmakingQueue.push({ uuid, mode, ws });
 
-        setTimeout(() => {
-          const matchId = crypto.randomUUID();
-          console.log('Match found for uuid:', uuid);
-          ws.send(JSON.stringify({ type: 'match_found', matchId }));
+        if (matchmakingQueue.filter(player => player.mode === mode).length >= 2) {
+          const players = matchmakingQueue.filter(player => player.mode === mode).slice(0, 2);
+          matchmakingQueue.splice(0, 2);
 
+          const matchId = crypto.randomUUID();
+          console.log('Match found for uuid:', players.map(p => p.uuid));
+          players.forEach(player => {
+            player.ws.send(JSON.stringify({ type: 'match_found', matchId }));
+          });
           matches.push({ matchId, players: [{ uuid, ws }], prompt: '', solution: '' });
           startMatch(matchId);
-        }, 2000);
+        }
       } else {
         ws.send(JSON.stringify({ type: 'error', message: `Unknown type: ${data.type}` }));
       }
@@ -95,7 +99,7 @@ async function generateChallenge(): Promise<Challenge> {
       messages: [
         {
           role: "system",
-          content: "You generate short Java coding challenges for a competitive coding game. Respond ONLY with valid JSON, no markdown, no explanation. Format: { \"prompt\": \"prompt including function signature\" }. 1 phrase for the prompt. in the prompt, include the function signature."
+          content: "You generate short Java coding challenges for a competitive coding game. Respond ONLY with valid JSON, no markdown, no explanation, no code fences. Format: { \"prompt\": \"prompt including function signature\" }. 1 phrase for the prompt. in the prompt, include the function signature."
         },
         {
           role: "user",
@@ -128,7 +132,7 @@ async function generateChallenge(): Promise<Challenge> {
       messages: [
         {
           role: "system",
-          content: "You solve simple coding challenges just give the code NO explanation, no markdown, no comments. Respond ONLY with valid JSON, no markdown, no explanation. Format: { \"solution\": \"code\" }."
+          content: "You solve simple coding challenges just give the code NO explanation, no markdown, no comments. Respond ONLY with valid JSON, no markdown, no explanation, no code fences. Format: { \"solution\": \"code\" }."
         },
         {
           role: "user",
