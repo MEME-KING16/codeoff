@@ -28,10 +28,12 @@ const app = new Elysia()
       type: t.String(),
       mode: t.Optional(t.String()),
       uuid: t.Optional(t.String()),
-      solution: t.Optional(t.String())
+      solution: t.Optional(t.String()),
+      matchId: t.Optional(t.String())
     }),
     open(ws) {
       console.log('Client connected');
+      ws.send(JSON.stringify({ type:"uuid", uuid: crypto.randomUUID() }));
     },
     message(ws, data) {
       if (data.type === 'matchmake') {
@@ -60,6 +62,11 @@ const app = new Elysia()
           startMatch(matchId);
         }
       } else if (data.type === 'submit_solution') {
+
+        if (!data.matchId) {
+          ws.send(JSON.stringify({ type: 'error', message: 'Missing matchId' }));
+          return;
+        }
         const match = matches.find(m => m.matchId === data.matchId);
         if (!match) {
           ws.send(JSON.stringify({ type: 'error', message: `Match with ID ${data.matchId} not found` }));
@@ -71,12 +78,12 @@ const app = new Elysia()
           return;
         }
 
-        validateJavaCode(data.solution, match.solution).then(isCorrect => {
-          if (isCorrect) {
-            ws.send(JSON.stringify({ type: 'solution_result', result: 'correct' }));
-          } else {
-            ws.send(JSON.stringify({ type: 'solution_result', result: 'incorrect' }));
-          }
+
+        validateJavaCode(data.solution, match.solution).then((number: number) => {
+          console.log(`Solution submitted for match ${data.matchId} with score: ${number}`);
+          match.players.forEach(player => {
+            player.ws.send(JSON.stringify({ type: 'solution_result', matchId: data.matchId, score: number }));
+          });
         }).catch(err => {
           console.error('Error validating solution:', err);
           ws.send(JSON.stringify({ type: 'error', message: 'Error validating solution' }));
@@ -189,11 +196,11 @@ async function generateChallenge(): Promise<Challenge> {
 }
 
 
-async function validateJavaCode(javaCode: string, Prompt: string): Promise<boolean> {
+async function validateJavaCode(javaCode: string, Prompt: string): Promise<number> {
   const result = await executeJavaInPod(javaCode);
   if (!result.success) {
     console.error("Java execution failed:", result.error);
-    return false;
+    return 0;
   }
   const score = await fetch(nim ? "https://integrate.api.nvidia.com/v1/chat/completions" : "http://localhost:1234/v1/chat/completions", {
     method: "POST",

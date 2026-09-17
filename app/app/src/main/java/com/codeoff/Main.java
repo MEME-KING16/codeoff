@@ -18,6 +18,7 @@ public class Main {
     public static JPanel cardPanel = new JPanel(cardLayout);
     private static Client client;
     private static JLabel subHeader;
+    private static String uuid = "";
 
     public static void main(String[] args) {
         FlatDarkLaf.setup(); // or FlatLightLaf
@@ -96,7 +97,7 @@ public class Main {
         JLabel header = new JLabel("CodeOff", SwingConstants.CENTER);
         header.setFont(header.getFont().deriveFont(Font.BOLD, 18f));
 
-        subHeader = new JLabel("make a simple for loop", SwingConstants.CENTER);
+        subHeader = new JLabel("", SwingConstants.CENTER);
         subHeader.setFont(subHeader.getFont().deriveFont(Font.PLAIN, 12f));
 
         JPanel headerPanel = new JPanel();
@@ -175,7 +176,7 @@ public class Main {
     }
 
     private static void matchMake() {
-        client.sendMatchmake("casual", "some-uuid");
+        client.sendMatchmake("casual", getUUID());
     }
 
     public static void setPrompt(String prompt) {
@@ -204,4 +205,12 @@ public class Main {
     //     }
     //     SwingUtilities.updateComponentTreeUI(cardPanel);
     // }
+
+    public static String getUUID() {
+        return uuid;
+    }
+
+    public static void setUUID(String newUUID) {
+        uuid = newUUID;
+    }
 }

@@ -9,7 +9,7 @@ import java.util.Map;
 
 public class Client extends WebSocketClient {
     private static final Gson gson = new Gson();
-
+    private String matchId;
     public Client(URI serverUri) {
         super(serverUri);
     }
@@ -21,6 +21,11 @@ public class Client extends WebSocketClient {
 
     public void sendMatchmake(String mode, String uuid) {
         String json = gson.toJson(Map.of("type", "matchmake", "mode", mode, "uuid", uuid));
+        send(json);
+    }
+
+    public void sendSolution(String solution) {
+        String json = gson.toJson(Map.of("type", "submit_solution", "solution", solution, "matchId", matchId, "uuid", Main.getUUID()));
         send(json);
     }
 
@@ -37,7 +42,7 @@ public class Client extends WebSocketClient {
                 break;
             case "match_found":
                 Main.cardLayout.show(Main.cardPanel, "MATCHFOUND");
-                System.out.println("Match found! " + data);
+                matchId = data.get("matchId").getAsString();
                 break;
             case "error":
                 System.out.println("Server error: " + data.get("message").getAsString());
@@ -47,9 +52,16 @@ public class Client extends WebSocketClient {
                 Main.setPrompt(data.get("prompt").getAsString());
                 System.out.println("Match started! " + data);
                 break;
+            case "uuid":
+                Main.setUUID(data.get("uuid").getAsString());
+                break;
             default:
                 System.out.println("Unknown message type: " + type);
         }
+    }
+
+    public String getMatchId() {
+        return matchId;
     }
 
     @Override
