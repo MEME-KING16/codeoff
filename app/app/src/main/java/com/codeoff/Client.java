@@ -24,6 +24,18 @@ public class Client extends WebSocketClient {
         send(json);
     }
 
+    public void sendCancelMatchmaking() {
+        String json = gson.toJson(Map.of("type", "cancel_matchmaking"));
+        send(json);
+    }
+
+    public void sendLogin(String savedUUID) {
+        String json = savedUUID == null
+            ? gson.toJson(Map.of("type", "login"))
+            : gson.toJson(Map.of("type", "login", "uuid", savedUUID));
+        send(json);
+    }
+
     public void sendSolution(String solution) {
         String json = gson.toJson(Map.of("type", "submit_solution", "solution", solution, "matchId", matchId, "uuid", Main.getUUID()));
         send(json);
@@ -40,20 +52,44 @@ public class Client extends WebSocketClient {
                 System.out.println("Starting Matchmaking for: " + mode);
                     Main.cardLayout.show(Main.cardPanel, "MATCHMAKING");
                 break;
+            case "matchmake_cancelled":
+                Main.cardLayout.show(Main.cardPanel, "TITLE");
+                break;
             case "match_found":
                 Main.cardLayout.show(Main.cardPanel, "MATCHFOUND");
                 matchId = data.get("matchId").getAsString();
                 break;
             case "error":
                 System.out.println("Server error: " + data.get("message").getAsString());
+                Main.showError(data.get("message").getAsString());
                 break;
             case "start_match":
+                Main.resetGame();
                 Main.cardLayout.show(Main.cardPanel, "GAME");
                 Main.setPrompt(data.get("prompt").getAsString());
+                Main.setMatchRank(data.get("rank").isJsonNull() ? null : data.get("rank").getAsString());
+                Main.startCountdown(data.get("timeLimit").getAsInt());
                 System.out.println("Match started! " + data);
+                break;
+            case "solution_result":
+                Main.showSolutionResult(data.get("uuid").getAsString(), data.get("score").getAsDouble(),
+                    data.has("feedback") ? data.get("feedback").getAsString() : null,
+                    data.has("compileError") ? data.get("compileError").getAsString() : null);
+                break;
+            case "time_up":
+                Main.onTimeUp();
+                break;
+            case "match_over":
+                matchId = null;
+                Main.showMatchOver(data);
                 break;
             case "uuid":
                 Main.setUUID(data.get("uuid").getAsString());
+                if (!data.has("devAccount") || !data.get("devAccount").getAsBoolean()) {
+                    Main.saveUUID(data.get("uuid").getAsString());
+                }
+                Main.setElo(data.get("elo").getAsInt(), data.get("rank").getAsString());
+                Main.setHelpInfo(data.getAsJsonArray("ranks"), data.get("casualTimeLimit").getAsInt());
                 break;
             default:
                 System.out.println("Unknown message type: " + type);

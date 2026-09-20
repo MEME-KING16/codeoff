@@ -25,3 +25,12 @@ build
 
 # Ignore Kotlin plugin data
 .kotlin
+
+# saved player uuid
+uuid.txt
+
+# api keys
+.env
+
+# player settings
+settings.properties
