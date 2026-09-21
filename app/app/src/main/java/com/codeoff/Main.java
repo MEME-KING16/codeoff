@@ -492,6 +492,7 @@ public class Main {
         scoresLabel = new JLabel("", SwingConstants.CENTER);
         eloChangeLabel = new JLabel("", SwingConstants.CENTER);
         feedbackLabel = new JLabel("", SwingConstants.CENTER);
+        feedbackLabel.setFont(feedbackLabel.getFont().deriveFont(Font.ITALIC));
 
         JButton menuBtn = new JButton("Back to Menu");
         menuBtn.setMaximumSize(new Dimension(UIScale.scale(200), UIScale.scale(40)));
@@ -584,9 +585,9 @@ public class Main {
                 }
                 if (feedback != null) {
                     statusLabel.setToolTipText(feedback);
-                    feedbackLabel.setText("<html><div style='text-align:center;width:400px'>Judge: " + escapeHtml(feedback) + "</div></html>");
+                    setFeedback(feedback);
                 } else if (compileError != null) {
-                    feedbackLabel.setText("Your code didn't compile (the error is printed in the console)");
+                    setFeedback("Your code didn't compile (the error is printed in the console)");
                 }
             } else if (submitBtn.isEnabled()) {
                 statusLabel.setText("Opponent submitted! (" + percent + ")");
@@ -640,12 +641,16 @@ public class Main {
             setElo(newElo, newRank);
         }
         String finalEloText = eloText;
+        String feedback = data.has("feedback") && !data.get("feedback").isJsonNull() ? data.get("feedback").getAsString() : null;
 
         SwingUtilities.invokeLater(() -> {
             stopCountdown();
             resultLabel.setText(result);
             scoresLabel.setText(scoreText);
             eloChangeLabel.setText(finalEloText);
+            if (feedback != null) {
+                setFeedback(feedback);
+            }
             cardLayout.show(cardPanel, "RESULTS");
         });
     }
@@ -680,6 +685,10 @@ public class Main {
                 statusLabel.setText("Time's up!");
             }
         });
+    }
+
+    private static void setFeedback(String text) {
+        feedbackLabel.setText("<html><div style='text-align:center;width:400px'>" + escapeHtml(text) + "</div></html>");
     }
 
     private static String escapeHtml(String text) {
